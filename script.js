@@ -22,7 +22,7 @@ backgroundMusic.play().then(() => {
     musicToggle.textContent = 'Off'; // Set initial button text to "Pause" if autoplay works
 }).catch(() => {
     console.log("Autoplay blocked. User must start playback manually.");
-    musicToggle.textContent = 'On'; // Set button text to "Play" if autoplay fails
+    musicToggle.textContent = 'Make Moves'; // Set button text to "Play" if autoplay fails
 });
 
 // Play/Pause Background Music Toggle
@@ -33,7 +33,7 @@ musicToggle.addEventListener('click', () => {
         }).catch(err => console.error("Error playing music:", err));
     } else {
         backgroundMusic.pause();
-        musicToggle.textContent = 'On'; // Update button text to "Play"
+        musicToggle.textContent = 'Make Moves'; // Update button text to "Play"
     }
 });
 
@@ -120,7 +120,7 @@ function animate() {
     ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
     // Draw logo on the canvas
-    ctx.drawImage(logoImage, (canvasElement.width - 2000) / 2, (canvasElement.height - logoImage.height / 2) / 2, 2000, logoImage.height / logoImage.width * 2000);
+    ctx.drawImage(logoImage, (canvasElement.width - 1500) / 2, (canvasElement.height - logoImage.height / 2-200) / 2, 1500, logoImage.height / logoImage.width * 1500);
 
     handleParticles();
     requestAnimationFrame(animate);
