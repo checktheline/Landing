@@ -120,7 +120,7 @@ function animate() {
     ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
     // Draw logo on the canvas
-    ctx.drawImage(logoImage, (canvasElement.width - 1500) / 2, (canvasElement.height - logoImage.height / 2) / 2, 1500, logoImage.height / logoImage.width * 1500);
+    ctx.drawImage(logoImage, (canvasElement.width - 2000) / 2, (canvasElement.height - logoImage.height / 2) / 2, 2000, logoImage.height / logoImage.width * 2000);
 
     handleParticles();
     requestAnimationFrame(animate);
