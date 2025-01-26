@@ -2,106 +2,132 @@ const canvasElement = document.getElementById('canvas');
 const ctx = canvasElement.getContext('2d');
 canvasElement.width = window.innerWidth;
 canvasElement.height = window.innerHeight;
-const thunder = document.getElementById('thunder');
+
+const backgroundMusic = document.getElementById('background-music');
+const musicToggle = document.getElementById('music-toggle');
+
+const logoImage = new Image(); // Create an image object for the logo
+logoImage.src = "https://raw.githubusercontent.com/checktheline/Landing/main/assets/images/Shockwave-01.png";
+
 let spots = [];
 
 const mouse = {
-  x: undefined,
-  y: undefined,
+    x: undefined,
+    y: undefined,
 };
 
-// Enable sound on first click (required by modern browsers)
-document.addEventListener('click', () => {
-  thunder.play().catch(err => console.error('Error playing sound:', err));
+// Play/Pause Background Music
+backgroundMusic.volume = 0.3;
+
+musicToggle.addEventListener('click', () => {
+    if (backgroundMusic.paused) {
+        backgroundMusic.play();
+        musicToggle.textContent = 'off';
+    } else {
+        backgroundMusic.pause();
+        musicToggle.textContent = 'on';
+    }
 });
 
-canvasElement.addEventListener('mousemove', function (event) {
-  mouse.x = event.x;
-  mouse.y = event.y;
+// Mouse movement for particle trails
+canvasElement.addEventListener('mousemove', (event) => {
+    mouse.x = event.x;
+    mouse.y = event.y;
 
-  // Play thunder sound when moving mouse
-  if (thunder && thunder.paused) {
-    thunder.currentTime = 0; // Restart the sound
-    thunder.play().catch(err => console.error('Sound playback issue:', err));
-  }
-
-  for (let i = 0; i < 3; i++) {
-    spots.push(new Particle());
-  }
+    for (let i = 0; i < 3; i++) {
+        spots.push(new Particle());
+    }
 });
 
-class Particle {
-  constructor() {
-    this.x = mouse.x;
-    this.y = mouse.y;
-    this.size = Math.random() * 3 + 0.5; // Slightly larger for lightning
-    this.speedX = Math.random() * 4 - 2; // Faster speed
-    this.speedY = Math.random() * 4 - 2;
-    this.alpha = 1; // Initial opacity (fully visible)
-    this.color = `rgba(255, 255, 255, ${this.alpha})`; // Start with full opacity
-  }
+// Lightning flash on mouse click
+document.addEventListener('click', createLightningFlash);
 
-  update() {
-    this.x += this.speedX;
-    this.y += this.speedY;
-    if (this.size > 0.2) this.size -= Math.random() * 0.05; // Moderate shrink rate
-    if (this.alpha > 0) this.alpha -= 0.03; // Moderate fade rate
-    this.color = `rgba(255, 255, 255, ${this.alpha})`; // Update color with new opacity
-  }
+function createLightningFlash() {
+    const flash = document.createElement('div');
+    flash.classList.add('lightning-flash');
+    document.body.appendChild(flash);
 
-  draw() {
-    ctx.shadowBlur = 15; // Add glow effect
-    ctx.shadowColor = this.color;
-    ctx.fillStyle = this.color;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.shadowBlur = 0; // Reset shadow
-  }
+    flash.addEventListener('animationend', () => {
+        flash.remove();
+    });
 }
 
-function handleParticle() {
-  for (let i = 0; i < spots.length; i++) {
-    spots[i].update();
-    spots[i].draw();
+class Particle {
+    constructor() {
+        this.x = mouse.x;
+        this.y = mouse.y;
+        this.size = Math.random() * 3 + 0.5;
+        this.speedX = Math.random() * 4 - 2;
+        this.speedY = Math.random() * 4 - 2;
+        this.alpha = 1; // Initial opacity
+        this.color = `rgba(255, 255, 255, ${this.alpha})`;
+    }
 
-    for (let j = i; j < spots.length; j++) {
-      const dx = spots[i].x - spots[j].x;
-      const dy = spots[i].y - spots[j].y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      if (distance < 120) { // Larger threshold for forks
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.size > 0.2) this.size -= Math.random() * 0.05;
+        if (this.alpha > 0) this.alpha -= 0.03;
+        this.color = `rgba(255, 255, 255, ${this.alpha})`;
+    }
+
+    draw() {
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = this.color;
+        ctx.fillStyle = this.color;
         ctx.beginPath();
-        ctx.strokeStyle = `rgba(255, 255, 255, ${Math.min(spots[i].alpha, spots[j].alpha)})`; // Match fading opacity
-        ctx.lineWidth = spots[i].size / 5;
-        ctx.moveTo(spots[i].x, spots[i].y);
-        ctx.lineTo(spots[j].x, spots[j].y);
-        ctx.stroke();
-      }
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
     }
+}
 
-    if (spots[i].size <= 0.2 || spots[i].alpha <= 0) {
-      spots.splice(i, 1); // Remove particle when it’s invisible or too small
-      i--;
+function handleParticles() {
+    for (let i = 0; i < spots.length; i++) {
+        spots[i].update();
+        spots[i].draw();
+
+        for (let j = i; j < spots.length; j++) {
+            const dx = spots[i].x - spots[j].x;
+            const dy = spots[i].y - spots[j].y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            if (distance < 120) {
+                ctx.beginPath();
+                ctx.strokeStyle = `rgba(255, 255, 255, ${Math.min(spots[i].alpha, spots[j].alpha)})`;
+                ctx.lineWidth = spots[i].size / 5;
+                ctx.moveTo(spots[i].x, spots[i].y);
+                ctx.lineTo(spots[j].x, spots[j].y);
+                ctx.stroke();
+            }
+        }
+
+        if (spots[i].size <= 0.2 || spots[i].alpha <= 0) {
+            spots.splice(i, 1);
+            i--;
+        }
     }
-  }
 }
 
 function animate() {
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.15)'; // Slightly less transparent for balanced tail fading
-  ctx.fillRect(0, 0, canvasElement.width, canvasElement.height);
+    ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
-  handleParticle();
-  requestAnimationFrame(animate);
+    // Draw logo on the canvas
+    ctx.drawImage(logoImage, (canvasElement.width - 1000) / 2, (canvasElement.height - logoImage.height / 2) / 2, 1000, logoImage.height / logoImage.width * 1000);
+
+    handleParticles();
+    requestAnimationFrame(animate);
 }
 
-window.addEventListener('resize', function () {
-  canvasElement.width = window.innerWidth;
-  canvasElement.height = window.innerHeight;
+// Resize canvas
+window.addEventListener('resize', () => {
+    canvasElement.width = window.innerWidth;
+    canvasElement.height = window.innerHeight;
 });
 
-window.addEventListener('mouseout', function () {
-  mouse.x = undefined;
-  mouse.y = undefined;
+// Clear cursor trail on mouse out
+window.addEventListener('mouseout', () => {
+    mouse.x = undefined;
+    mouse.y = undefined;
 });
 
 animate();
