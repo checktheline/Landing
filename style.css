@@ -22,7 +22,7 @@ body {
 /* Music toggle button styling */
 button {
     position: fixed;
-    bottom: 20px;
+    bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
     background-color: transparent;

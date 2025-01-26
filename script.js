@@ -16,16 +16,24 @@ const mouse = {
     y: undefined,
 };
 
-// Play/Pause Background Music
-backgroundMusic.volume = 0.3;
+// Attempt autoplay on page load
+backgroundMusic.volume = 0.3; // Set initial volume
+backgroundMusic.play().then(() => {
+    musicToggle.textContent = 'Off'; // Set initial button text to "Pause" if autoplay works
+}).catch(() => {
+    console.log("Autoplay blocked. User must start playback manually.");
+    musicToggle.textContent = 'On'; // Set button text to "Play" if autoplay fails
+});
 
+// Play/Pause Background Music Toggle
 musicToggle.addEventListener('click', () => {
     if (backgroundMusic.paused) {
-        backgroundMusic.play();
-        musicToggle.textContent = 'off';
+        backgroundMusic.play().then(() => {
+            musicToggle.textContent = 'Off'; // Update button text to "Pause"
+        }).catch(err => console.error("Error playing music:", err));
     } else {
         backgroundMusic.pause();
-        musicToggle.textContent = 'on';
+        musicToggle.textContent = 'On'; // Update button text to "Play"
     }
 });
 
@@ -112,7 +120,7 @@ function animate() {
     ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
     // Draw logo on the canvas
-    ctx.drawImage(logoImage, (canvasElement.width - 1000) / 2, (canvasElement.height - logoImage.height / 2) / 2, 1000, logoImage.height / logoImage.width * 1000);
+    ctx.drawImage(logoImage, (canvasElement.width - 1500) / 2, (canvasElement.height - logoImage.height / 2) / 2, 1500, logoImage.height / logoImage.width * 1500);
 
     handleParticles();
     requestAnimationFrame(animate);
